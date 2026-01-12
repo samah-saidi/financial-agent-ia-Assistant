@@ -1,0 +1,149 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{float}
+
+\geometry{hmargin=2.5cm,vmargin=2.5cm}
+
+% Configuration pour le code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{\textbf{Rapport de Projet NLP : Conception d'un Assistant Financier Agentique}}
+\author{Projet NLP \& IA Générative}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce rapport détaille la conception et l'implémentation d'un système multi-agents dédié à l'analyse financière. En s'appuyant sur le framework \textbf{Phidata} et le modèle de langage \textbf{Llama 3}, nous avons développé une application capable d'orchestrer des agents spécialisés pour traiter simultanément des données quantitatives structurées et des flux d'actualités non structurés. Ce projet illustre l'application concrète du NLP (Traitement du Langage Naturel) pour l'augmentation des capacités d'analyse humaine.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+L'un des défis majeurs de l'intelligence artificielle appliquée à la finance est la capacité à synthétiser des sources d'informations hétérogènes. Un analyste humain combine l'étude des graphiques (analyse technique) avec la lecture des nouvelles (analyse fondamentale). 
+
+Notre projet vise à reproduire ce processus cognitif en utilisant une architecture \textbf{Agentique}. Plutôt que d'avoir un seul modèle qui "fait tout", nous divisons la tâche entre plusieurs agents spécialisés qui collaborent pour produire un rapport final cohérent.
+
+\section{Architecture Technique et Stack}
+Le projet repose sur une architecture modulaire moderne :
+\begin{itemize}
+    \item \textbf{Cerveau (LLM)} : \texttt{Llama-3.1-8b-instant} via l'API \textbf{Groq}. Ce choix est motivé par la vitesse d'inférence exceptionnelle de Groq, cruciale pour une expérience utilisateur fluide.
+    \item \textbf{Orchestration} : \textbf{Phidata}, un framework permettant de définir des agents dotés de mémoire, de rôles et d'outils.
+    \item \textbf{Interface (UI)} : \textbf{Streamlit}, pour une visualisation interactive ("Dashboard").
+    \item \textbf{Recherche} : \textbf{DuckDuckGo Search} API, pour l'accès au web en temps réel sans traçage.
+    \item \textbf{Traitement de Données} : \textbf{Pandas}, pour les calculs statistiques sur les séries temporelles.
+\end{itemize}
+
+\section{Analyse Détaillée des Agents}
+L'originalité du projet réside dans la séparation des responsabilités entre deux agents distincts.
+
+\subsection{Concept d'Agent dans le NLP}
+Dans ce contexte, un "Agent" est une instance de LLM configurée avec :
+\begin{enumerate}
+    \item Un \textbf{System Prompt} (Persona) : Qui définit son identité et son style de réponse.
+    \item Des \textbf{Instructions} : Règles métier strictes (ex: "Réponds toujours en français").
+    \item Des \textbf{Outils (Tools)} : Capacités d'exécution de code ou d'accès externe (Web).
+\end{enumerate}
+
+\subsection{Agent 1 : L'Analyste Quantitatif (Financial Analysis Agent)}
+\textbf{Rôle :} Transformer des données brutes en narration intelligible.
+
+\textbf{Fonctionnement :}
+\begin{itemize}
+    \item \textbf{Entrée} : Il ne reçoit pas directement les fichiers CSV. Au lieu de cela, un pré-traitement Python calcule des indicateurs clés (Moyenne, Min, Max, Volatilité, Rendement).
+    \item \textbf{Prompting} : Le prompt injecte ces calculs et demande une interprétation. 
+    \begin{quote}
+    \textit{"Tu es un analyste financier... Tu dois produire une analyse claire... Interprète la volatilité moyenne..."}
+    \end{quote}
+    \item \textbf{Spécificité} : Cet agent est "fermé" sur le monde extérieur pour éviter les hallucinations. Il doit se baser \textit{uniquement} sur les chiffres fournis dans le prompt pour garantir la factualité de l'analyse technique.
+\end{itemize}
+
+\subsection{Agent 2 : Le Chercheur d'Actualités (Web News Agent)}
+\textbf{Rôle :} Connecter l'analyse aux événements du monde réel.
+
+\textbf{Fonctionnement :}
+\begin{itemize}
+    \item \textbf{Outil} : Il est équipé de \texttt{DuckDuckGo()}, lui permettant d'effectuer des requêtes HTTP.
+    \item \textbf{Prompting dynamique} : Le prompt est ajusté dynamiquement pour cibler des périodes spécifiques ou prioriser les nouvelles récentes.
+    \begin{quote}
+    \textit{"Recherche des actualités financières récentes... Donne une synthèse en 3 à 5 points..."}
+    \end{quote}
+    \item \textbf{Capacité NLP} : Sa force réside dans le \textbf{Summarization} (résumé) et le \textbf{Re-ranking} (sélection de la pertinence). Il doit filtrer le bruit des résultats de recherche pour ne garder que l'essentiel financier.
+\end{itemize}
+
+\section{Implémentation du Code}
+
+Voici comment la spécialisation des agents est définie programmatiquement :
+
+\begin{lstlisting}[language=Python, caption=Configuration de l'Agent Web]
+# Definition de l'Agent de recherche
+web_news_agent = Agent(
+    name="Web News Agent",
+    role="Analyste charge de la veille mediatique",
+    model=groq_model,
+    # Outil limite pour gerer les quotas
+    tools=[DuckDuckGo(fixed_max_results=3)],
+    instructions=[
+        "Reponds en francais.",
+        "Cherche des faits, pas des rumeurs.",
+        "Cite toujours tes sources (URL)."
+    ],
+    show_tool_calls=True, # Transparence sur les actions de l'agent
+    markdown=True,
+)
+\end{lstlisting}
+
+\section{Défis NLP et Solutions Apportées}
+
+\subsection{Gestion du Contexte et Tokens}
+Les LLMs ont une fenêtre de contexte limitée.
+\begin{itemize}
+    \item \textbf{Problème} : Envoyer tout l'historique de prix (CSV complet) au LLM saturerait le contexte et coûterait cher.
+    \item \textbf{Solution} : Nous utilisons une approche hybride. Python (Pandas) condense l'information (Feature Extraction) et seul le résumé statistique est envoyé à l'agent. C'est une technique de \textbf{RAG (Retrieval-Augmented Generation)} simplifié.
+\end{itemize}
+
+\subsection{Hallucinations et Factualité}
+Pour minimiser les inventions (hallucinations) :
+\begin{itemize}
+    \item Nous séparons l'analyse technique (déterministe) de l'analyse web (probabiliste).
+    \item Les instructions système ("System Prompts") sont strictes : "Utilise le résumé fourni, ne l'invente pas".
+\end{itemize}
+
+\section{Conclusion}
+Ce projet démontre qu'une architecture multi-agents est supérieure à une approche monolithique pour des tâches complexes. En spécialisant les agents (l'un sur les chiffres, l'autre sur le texte), nous obtenons une analyse plus riche, plus précise et plus modulaire. L'application constitue une base solide pour un outil d'aide à la décision financière complet.
+
+\end{document}

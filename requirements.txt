@@ -1,0 +1,12 @@
+numpy>=2.1.0
+pandas>=2.2.0
+phidata>=2.5.0
+groq>=0.9.0
+python-dotenv>=1.0.0
+duckduckgo-search>=6.0.0
+streamlit>=1.40.0
+pydantic>=2.8.0
+ddgs
+fastapi
+uvicorn
+requests
