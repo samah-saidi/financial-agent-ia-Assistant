@@ -8,6 +8,19 @@ Ce projet est une application d'analyse financière intelligente reposant sur un
 - **Veille Médiatique** : Un agent "Chercheur" scanne le web via DuckDuckGo pour trouver les dernières actualités financières pertinentes.
 - **Dashboard Interactif** : Interface utilisateur claire et moderne réalisée avec **Streamlit**.
 - **Mode Comparaison** : Possibilité de comparer la performance relative de plusieurs actions.
+- **Prédiction IA** : Modèle de Machine Learning intégré (FastAPI) pour prédire les mouvements futurs.
+
+## 🖼️ Aperçus du Dashboard
+
+![Interface Principale](images/Capture%20d'écran%202026-01-11%20112623.png)
+*Vue d'ensemble de l'analyse individuelle avec indicateurs techniques et actualités.*
+
+![Comparaison Multi-Actions](images/Capture%20d’écran%20(356).png)
+*Performance relative et comparaison de plusieurs tickers.*
+
+![Signaux Techniques](images/Capture%20d’écran%20(361).png)
+*Détails des signaux (RSI, Moyennes Mobiles) et prédiction du modèle.*
+
 
 ## 🧠 Architecture & Agents
 
@@ -60,21 +73,29 @@ Le système utilise le framework **Phidata** pour orchestrer deux agents distinc
 
 ## ▶️ Utilisation
 
-Lancez l'application Streamlit :
-
+### 1. Lancer l'API (Backend)
 ```bash
-streamlit run app.py
+uvicorn app.main:app --reload --port 8000
 ```
 
-L'application sera accessible sur `http://localhost:8501`.
+### 2. Lancer le Dashboard (Frontend)
+```bash
+streamlit run streamlit_app.py
+```
+
+L'interface sera accessible sur `http://localhost:8501`.
+
 
 ## 📂 Structure du Projet
 
-*   `app.py` : Entrée principale de l'application Streamlit.
-*   `financial_agent.py` : Définition des agents (Phidata) et logique d'analyse.
-*   `analysis_stock_data.py` : Fonctions de calcul (Moyennes mobiles, volatilité, chargement des données).
-*   `data/` : Dossier contenant les fichiers CSV des actions.
-*   `reports/` : Dossier de sortie pour les rapports générés (Markdown).
+*   `streamlit_app.py` : Entrée principale de l'interface utilisateur.
+*   `app/` : Backend FastAPI (Modèles Pydantic, détection de drift).
+*   `financial_agent.py` : Définition des agents (Phidata).
+*   `train_model.py` : Script d'entraînement du modèle RandomForest.
+*   `analysis_stock_data.py` : Logique de calcul technique.
+*   `data/` : Sources de données (CSV).
+*   `model/` : Modèle entraîné (`.pkl`).
+
 
 ## Auteurs
 
